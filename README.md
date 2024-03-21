@@ -61,8 +61,8 @@ This small tool publishes Archiver Appliance status as EPICS PVs by polling Arch
 
 ## Configuration
 
-* For single node deployment, set *APPLIANCE_URL* and *APPLIANCE_IDENTITY* as strings.
-* For cluster deployment, set *appliances* as list of dictionary.
+* For single node deployment, set `APPLIANCE_URL` and `APPLIANCE_IDENTITY` as strings.
+* For cluster deployment, set `appliances` as list of dictionary.
 
 ## Screenshot for single node deployment of Archiver Appliance
 
