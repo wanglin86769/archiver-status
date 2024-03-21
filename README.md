@@ -28,6 +28,8 @@ This small tool publishes Archiver Appliance status as EPICS PVs by polling Arch
 
 ## PV list for cluster deployment of Archiver Appliance
 
+If the cluster includes two nodes with the idenntity appliance_01 and appliance_02 respectively.
+
 * MTEST:appliance_01:status
 * MTEST:appliance_01:MGMT_uptime
 * MTEST:appliance_01:pvCount
