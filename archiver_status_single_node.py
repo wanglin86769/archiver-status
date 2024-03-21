@@ -9,8 +9,7 @@ from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 
 # Configuration
-# APPLIANCE_URL = 'http://localhost:17665'
-APPLIANCE_URL = 'http://10.1.236.172:17665'
+APPLIANCE_URL = 'http://localhost:17665'
 APPLIANCE_IDENTITY = 'appliance0'
 REQUEST_TIMEOUT = 5
 REQUEST_INTERVAL = 5
