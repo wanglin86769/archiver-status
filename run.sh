@@ -1,0 +1,1 @@
+procServ -n "Archiver Status" -L "/home/debian/python/run.log" --noautorestart -i ^C^D 20000 /usr/bin/python3 /home/debian/python/archiver_status_single_node.py
