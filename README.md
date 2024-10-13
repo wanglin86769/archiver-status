@@ -4,9 +4,11 @@ This small tool publishes Archiver Appliance status as EPICS PVs by polling Arch
 
 ## Software environment
 
-* Python 3
+This software is developed and tested in the following environment,
 
-* pcaspy
+* Python 3.11.1
+
+* pcaspy 0.8.0
 
 ## PV list for single node deployment of Archiver Appliance
 
@@ -68,13 +70,27 @@ If the cluster includes two nodes with the idenntity appliance_01 and appliance_
 
 ## Screenshot for single node deployment of Archiver Appliance
 
-![Alt text](screenshots/single_node.png?raw=true "Title")
+Traditional CS-Studio
+
+![Alt text](screenshots/cs-studio/single_node.png?raw=true "Title")
+
+Phoebus
+
+![Alt text](screenshots/phoebus/single_node.png?raw=true "Title")
 
 ## Screenshot for cluster deployment of Archiver Appliance
 
-![Alt text](screenshots/cluster_node_01.png?raw=true "Title")
+Traditional CS-Studio
 
-![Alt text](screenshots/cluster_node_02.png?raw=true "Title")
+![Alt text](screenshots/cs-studio/cluster_node_01.png?raw=true "Title")
+
+![Alt text](screenshots/cs-studio/cluster_node_02.png?raw=true "Title")
+
+Phoebus
+
+![Alt text](screenshots/phoebus/cluster_node_01.png?raw=true "Title")
+
+![Alt text](screenshots/phoebus/cluster_node_02.png?raw=true "Title")
 
 ## License
 MIT license
