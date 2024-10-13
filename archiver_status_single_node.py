@@ -9,7 +9,7 @@ from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 
 # Configuration
-APPLIANCE_URL = 'http://localhost:17665'
+APPLIANCE_URL = 'http://10.1.236.172:17665'
 APPLIANCE_IDENTITY = 'appliance0'
 REQUEST_TIMEOUT = 5
 REQUEST_INTERVAL = 5
@@ -23,6 +23,7 @@ print(f'identity: {APPLIANCE_IDENTITY}')
 print('\n')
 
 GET_INSTANCE_METRICS_URL = f'{APPLIANCE_URL}/mgmt/bpl/getInstanceMetrics'
+GET_APPLIANCE_METRICS_FOR_APPLIANCE_URL = f'{APPLIANCE_URL}/mgmt/bpl/getApplianceMetricsForAppliance?appliance={APPLIANCE_IDENTITY}'
 GET_STORAGE_METRICS_FOR_APPLIANCE_URL = f'{APPLIANCE_URL}/mgmt/bpl/getStorageMetricsForAppliance?appliance={APPLIANCE_IDENTITY}'
 
 pvdb = {
@@ -31,6 +32,7 @@ pvdb = {
         'pvCount':                      { 'type': 'int', 'value': 0 },
         'connectedPVCount':             { 'type': 'int', 'value': 0 },
         'disconnectedPVCount':          { 'type': 'int', 'value': 0 },
+        'pausedPVCount':                { 'type': 'int', 'value': 0 },
         'dataRateGBPerDay':             { 'type': 'float', 'prec': 2, 'unit': 'GB/day', 'value': 0 },
         'sts_total_space':              { 'type': 'float', 'prec': 2, 'unit': 'GB', 'value': 0 },
         'sts_available_space':          { 'type': 'float', 'prec': 2, 'unit': 'GB', 'value': 0 },
@@ -52,8 +54,11 @@ print('\n')
 class myDriver(Driver):
     def __init__(self):
         Driver.__init__(self)
-        # Create two polling threads for the appliance
+        # Create three polling threads for the appliance
         self.tid = threading.Thread(target = self.pollInstanceMetrics) 
+        self.tid.daemon = True
+        self.tid.start()
+        self.tid = threading.Thread(target = self.pollApplianceMetrics) 
         self.tid.daemon = True
         self.tid.start()
         self.tid = threading.Thread(target = self.pollStorageMetrics) 
@@ -74,6 +79,12 @@ class myDriver(Driver):
         self.setParamStatus('connectedPVCount', Alarm.COMM_ALARM, Severity.MINOR_ALARM)
         self.setParamStatus('disconnectedPVCount', Alarm.COMM_ALARM, Severity.MINOR_ALARM)
         self.setParamStatus('dataRateGBPerDay', Alarm.COMM_ALARM, Severity.MINOR_ALARM)
+        self.updatePVs()
+
+    # Set alarm and invalid value for appliance metrics
+    def invalidateApplianceMetrics(self):
+        self.setParam('pausedPVCount', 0)
+        self.setParamStatus('pausedPVCount', Alarm.COMM_ALARM, Severity.MINOR_ALARM)
         self.updatePVs()
 
     # Set alarm and invalid value for storage metrics
@@ -179,6 +190,57 @@ class myDriver(Driver):
             # Delay 5 seconds
             time.sleep(REQUEST_INTERVAL)
 
+    # Polling thread for appliance metrics
+    def pollApplianceMetrics(self):
+        while True:
+            try:
+                # Get instance metrics data
+                response = requests.get(GET_APPLIANCE_METRICS_FOR_APPLIANCE_URL, timeout = REQUEST_TIMEOUT)
+
+                if response.status_code < 200 or response.status_code >= 300:
+                    print('Bad response status code ' + str(response.status_code) + ' for appliance metrics data')
+                    self.invalidateApplianceMetrics()
+                    time.sleep(REQUEST_INTERVAL)
+                    continue
+
+                text = response.text
+
+                if not text:
+                    print('Response text for appliance metrics data is empty, maybe APPLIANCE_IDENTITY is not correct')
+                    self.invalidateApplianceMetrics()
+                    time.sleep(REQUEST_INTERVAL)
+                    continue
+
+                data = json.loads(text)
+
+                if len(data) == 0:
+                    print('Empty text response for appliance metrics data')
+                    self.invalidateApplianceMetrics()
+                    time.sleep(REQUEST_INTERVAL)
+                    continue
+
+                for item in data:
+                    if item['name'] == 'Paused PV count':
+                        pausedPVCount = int(item['value'])
+
+                # print(pausedPVCount)
+
+                self.setParam('pausedPVCount', pausedPVCount)
+
+                # do updates so clients see the changes
+                self.updatePVs()
+
+            except Timeout:
+                print('Request for instance appliance data has timed out')
+                self.invalidateApplianceMetrics()
+
+            except ConnectionError:
+                print('Connection for instance appliance data has been refused')
+                self.invalidateApplianceMetrics()
+
+            # Delay 5 seconds
+            time.sleep(REQUEST_INTERVAL)
+
     # Polling thread for storage metrics
     def pollStorageMetrics(self):
         while True:
@@ -193,6 +255,13 @@ class myDriver(Driver):
                     continue
 
                 text = response.text
+
+                if not text:
+                    print('Response text for storage metrics data is empty, maybe APPLIANCE_IDENTITY is not correct')
+                    self.invalidateStorageMetrics()
+                    time.sleep(REQUEST_INTERVAL)
+                    continue
+
                 data = json.loads(text)
 
                 if len(data) == 0:
