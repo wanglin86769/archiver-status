@@ -10,21 +10,13 @@ This software is developed and tested in the following environment,
 
 * pcaspy 0.8.0
 
-## Sources files
+## Sources file
 
-* `archiver_status_single_node.py`: it can be used for single node deployment of Archiver Appliance.
-
-* `archiver_status_cluster.py`: it can be used for cluster deployment of Archiver Appliance.
-
-* `archiver_status.py`: it merges the two source files above and can be used for either single node or cluster deployment.
-
-Any of the source files above has been tested and can be used.
+* `archiver_status.py`: it can be used for either single node or cluster deployment of Archiver Appliance.
 
 ## Configuration
 
-* For `archiver_status_single_node.py`, set `APPLIANCE_URL` and `APPLIANCE_IDENTITY` as strings.
-* For `archiver_status_cluster.py`, set `appliances` as list of dictionary.
-* For `archiver_status.py`, add one element to `appliances` for single node and multiple elements for cluster.
+* Create `customized_config.py` based on `customized_config_example.py` to set `appliances` as list of dictionary which includes `url` and `identity` of an appliance node, and add one element to `appliances` for single node and multiple elements for cluster.
 
 ## PV list for single node deployment of Archiver Appliance
 
