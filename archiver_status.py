@@ -9,18 +9,15 @@ from pcaspy import Driver, SimpleServer, Alarm, Severity
 from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 
-# Configuration
-appliances = [
-    # For single node deployment of Archiver Appliance, configure url and identity for the node
-    { 'url': 'http://localhost:17665', 'identity': 'appliance0' },
-    
-    # For cluster deployment of Archiver Appliance, configure url and identity for all the nodes
-    # { 'url': 'http://10.1.236.142:17665', 'identity': 'appliance_01' },
-    # { 'url': 'http://10.1.236.143:17665', 'identity': 'appliance_02' },
-]
-REQUEST_TIMEOUT = 5
-REQUEST_INTERVAL = 5
-prefix = 'MTEST:'
+# Try the Customized Configuration first, then the default Configuration
+try:
+    from customized_config import *
+except ImportError:
+    print('*** No customized_config.py is provided so the default configuration is used ***')
+    appliances = [ {'url': 'http://localhost:17665', 'identity': 'appliance0' } ]
+    REQUEST_TIMEOUT = 5
+    REQUEST_INTERVAL = 5
+    prefix = 'MTEST:'
 
 print('\n')
 print('*** This tool is used to monitor status of Archiver Appliance deployed as either single node or cluster ***')
